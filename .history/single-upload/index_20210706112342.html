@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>单文件上传测试</title>
+  <script src="../node_modules/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <input type="file" id="uploadFile" accept="image/*">
+  <button onclick="uploadFile()"></button>
+  <script>
+    const uploadFile = document.querySelector('#upload')
+    const request = axios.create({
+      baseUrl: "http://localhost:3000/upload",
+      timeout: 6e4
+    })
+
+    async function uploadFile() {
+      if (!uploadFile.files.length) return;
+      const file = uploadFile.files[0]
+      upload({
+        url: '/single',
+        file
+      })
+    }
+
+    function upload({ url, file, fieldName = "file" }) {
+      let formData = new FormData();
+      formData.set(fieldName, file);
+      request.post(url, formData, {
+        // 监听上传进度
+        onUploadProgress: function (progressEvent) {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          console.log(percentCompleted);
+        },
+      });
+    }
+  </script>
+</body>
+</html>
